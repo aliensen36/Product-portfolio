@@ -1,0 +1,50 @@
+# Операционная система
+*.log
+*.pot
+*.pyc
+*.pyo
+*.sqlite3
+__pycache__/
+*.swp
+.DS_Store
+
+# Виртуальная среда Python
+venv/
+.env/
+.env.*.local
+
+# Настройки IDE и редакторов
+.idea/
+*.iml
+.vscode/
+
+# Docker
+*.pid
+*.seed
+*.pid.lock
+build/
+*.log
+docker-compose.override.yml
+.env.docker
+
+# Media и static файлы
+/media/
+staticfiles/
+static/
+
+# Миграции
+**/migrations/*.pyc
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Тестовые файлы
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+nosetests.xml
+test-results/
+
+# Разное
+local_settings.py
+db.sqlite3
