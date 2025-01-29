@@ -31,7 +31,7 @@ venv\Scripts\activate     # Для Windows
 
 ### Шаг 3: Установите зависимости
 ```bash
-pip install -r requirements.txt
+pip install -r requirements.txt # Установка из файла
 ```
 
 ### Шаг 4: Примените миграции
