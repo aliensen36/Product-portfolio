@@ -49,3 +49,5 @@ test-results/
 local_settings.py
 db.sqlite3
 .env
+product_app/management/
+data/
