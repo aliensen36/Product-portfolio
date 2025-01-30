@@ -51,3 +51,6 @@ db.sqlite3
 .env
 product_app/management/
 data/
+test/
+auth/
+
