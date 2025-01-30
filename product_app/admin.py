@@ -3,6 +3,7 @@ from .models import Product, Project
 from django.utils.html import format_html
 
 class ProductAdmin(admin.ModelAdmin):
+    # fields = ('name', 'description', 'created_at', 'status', 'owners', 'curators', 'sphere', 'sales_model', 'logo')
     list_display = ('name', 'created_at')
     search_fields = ('name',)
     list_filter = ('created_at',)
