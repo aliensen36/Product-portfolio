@@ -21,10 +21,10 @@ class Product(models.Model):
         null=True,
         verbose_name='Статус'
     )
-    customers = models.ManyToManyField(
+    owners = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         blank=True,
-        related_name='products_as_customer',
+        related_name='products_as_owner',
         verbose_name='Заказчики'
     )
     curators = models.ManyToManyField(
@@ -75,10 +75,10 @@ class Project(models.Model):
         related_name='projects_as_curator',
         verbose_name='Кураторы'
     )
-    interns = models.ManyToManyField(
+    members = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
         blank=True,
-        related_name='projects_as_intern',
+        related_name='projects_as_member',
         verbose_name='Стажёры'
     )
 

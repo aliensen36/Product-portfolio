@@ -6,7 +6,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_display = ('name', 'created_at')
     search_fields = ('name',)
     list_filter = ('created_at',)
-    filter_horizontal = ('customers', 'curators')
+    filter_horizontal = ('owners', 'curators')
     readonly_fields = ('get_projects',)
 
     def get_projects(self, obj):
@@ -28,7 +28,7 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'product', 'start_date', 'end_date')
     search_fields = ('name',)
     list_filter = ('start_date', 'end_date', 'product')
-    filter_horizontal = ('curators', 'interns')
+    filter_horizontal = ('curators', 'members')
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Project, ProjectAdmin)

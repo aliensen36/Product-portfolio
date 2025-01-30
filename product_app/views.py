@@ -26,8 +26,8 @@ class ProductViewSet(ModelViewSet):
             queryset = queryset.filter(status=status)
         return queryset
 
-    @action(detail=True, methods=['get', 'post'], url_path='customers')
-    def customers(self, request, pk=None):
+    @action(detail=True, methods=['get', 'post'], url_path='owners')
+    def owners(self, request, pk=None):
         """
         GET: Возвращает список заказчиков продукта.
         POST: Добавляет заказчика к продукту.
@@ -35,8 +35,8 @@ class ProductViewSet(ModelViewSet):
         product = self.get_object()
 
         if request.method == 'GET':
-            customers = product.customers.all()
-            data = [{'id': customer.id, 'username': customer.username} for customer in customers]
+            owners = product.owners.all()
+            data = [{'id': owner.id, 'username': owner.username} for owner in owners]
             return Response(data)
 
         if request.method == 'POST':
@@ -47,8 +47,8 @@ class ProductViewSet(ModelViewSet):
             try:
                 # Используем модель пользователя через settings.AUTH_USER_MODEL
                 user = User.objects.get(id=user_id)
-                product.customers.add(user)
-                return Response({'message': f'User {user.username} added as customer.'})
+                product.owners.add(user)
+                return Response({'message': f'User {user.username} added as owner.'})
             except User.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
@@ -126,8 +126,8 @@ class ProjectViewSet(ModelViewSet):
             except User.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    @action(detail=True, methods=['get', 'post'], url_path='interns')
-    def interns(self, request, pk=None):
+    @action(detail=True, methods=['get', 'post'], url_path='members')
+    def members(self, request, pk=None):
         """
         GET: Возвращает список стажеров проекта.
         POST: Добавляет стажера в проект.
@@ -135,8 +135,8 @@ class ProjectViewSet(ModelViewSet):
         project = self.get_object()
 
         if request.method == 'GET':
-            interns = project.interns.all()
-            data = [{'id': intern.id, 'username': intern.username} for intern in interns]
+            members = project.members.all()
+            data = [{'id': member.id, 'username': member.username} for member in members]
             return Response(data)
 
         if request.method == 'POST':
@@ -147,7 +147,7 @@ class ProjectViewSet(ModelViewSet):
             try:
                 # Используем модель пользователя через settings.AUTH_USER_MODEL
                 user = User.objects.get(id=user_id)
-                project.interns.add(user)
-                return Response({'message': f'User {user.username} added as intern.'})
+                project.members.add(user)
+                return Response({'message': f'User {user.username} added as member.'})
             except User.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)

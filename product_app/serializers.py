@@ -6,7 +6,7 @@ class ProductSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели Product.
     """
-    customers = serializers.PrimaryKeyRelatedField(many=True, read_only=True)  # Список ID заказчиков
+    owners = serializers.PrimaryKeyRelatedField(many=True, read_only=True)  # Список ID заказчиков
     curators = serializers.PrimaryKeyRelatedField(many=True, read_only=True)  # Список ID кураторов
     projects = serializers.PrimaryKeyRelatedField(many=True, read_only=True)  # Список ID связанных проектов
 
@@ -18,7 +18,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'description',
             'created_at',
             'status',
-            'customers',
+            'owners',
             'curators',
             'projects',
         )
@@ -30,7 +30,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     """
     product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())  # ID продукта
     curators = serializers.PrimaryKeyRelatedField(many=True, read_only=True)  # Список ID кураторов
-    interns = serializers.PrimaryKeyRelatedField(many=True, read_only=True)  # Список ID стажёров
+    members = serializers.PrimaryKeyRelatedField(many=True, read_only=True)  # Список ID стажёров
 
     class Meta:
         model = Project
@@ -43,5 +43,5 @@ class ProjectSerializer(serializers.ModelSerializer):
             'end_date',
             'status',
             'curators',
-            'interns',
+            'members',
         )
