@@ -12,6 +12,13 @@ class ProductSerializer(serializers.ModelSerializer):
     # Мы можем добавить дополнительные поля для отображения статусов и моделей продаж
     status_display = serializers.CharField(source='get_status_display', read_only=True)
     sales_model_display = serializers.CharField(source='get_sales_model_display', read_only=True)
+    logo = serializers.SerializerMethodField()
+
+    def get_logo(self, obj):
+        if obj.logo:
+            return obj.logo.url  # автоматически создаст абсолютный URL
+        return None
+
 
     class Meta:
         model = Product

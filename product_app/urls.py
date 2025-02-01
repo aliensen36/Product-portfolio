@@ -12,7 +12,3 @@ router.register(r'projects', ProjectViewSet, basename='project')
 urlpatterns = [
     path('', include(router.urls)),
 ]
-
-# Обработка медиа-файлов
-if settings.DEBUG:  # Обработка медиа-файлов только в режиме разработки
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

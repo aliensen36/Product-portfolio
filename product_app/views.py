@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from .models import Product, Project
-from .serializers import ProductSerializer, ProjectSerializer
+from .serializers import *
 
 User = settings.AUTH_USER_MODEL  # Получаем модель пользователя через settings.AUTH_USER_MODEL
 

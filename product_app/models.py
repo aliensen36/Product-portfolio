@@ -3,13 +3,20 @@ import mimetypes
 from django.db import models
 from django.conf import settings
 from datetime import datetime
+from unidecode import unidecode
 from django.core.exceptions import ValidationError
+
 
 def upload_to(instance, filename):
     # Получаем расширение файла
     ext = filename.split('.')[-1]
+
+    # Преобразуем имя продукта в ASCII, чтобы избежать русских букв
+    safe_name = unidecode(instance.name)
+
     # Генерируем имя файла
-    filename = f"{instance.name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
+    filename = f"{safe_name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
+
     # Возвращаем путь, где будет сохранен файл
     return os.path.join('logos', filename)
 
