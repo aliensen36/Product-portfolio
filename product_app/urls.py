@@ -1,6 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet, ProjectViewSet
+from .views import *
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Создаем роутер и регистрируем вьюсеты
 router = DefaultRouter()
@@ -8,6 +10,9 @@ router.register(r'products', ProductViewSet, basename='product')
 router.register(r'projects', ProjectViewSet, basename='project')
 
 urlpatterns = [
-    # Подключаем маршруты роутера
     path('', include(router.urls)),
 ]
+
+# Обработка медиа-файлов
+if settings.DEBUG:  # Обработка медиа-файлов только в режиме разработки
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

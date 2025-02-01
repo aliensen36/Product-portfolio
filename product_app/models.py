@@ -1,28 +1,74 @@
+import os
+import mimetypes
 from django.db import models
 from django.conf import settings
+from datetime import datetime
+from django.core.exceptions import ValidationError
+
+def upload_to(instance, filename):
+    # Получаем расширение файла
+    ext = filename.split('.')[-1]
+    # Генерируем имя файла
+    filename = f"{instance.name}_{datetime.now().strftime('%Y%m%d%H%M%S')}.{ext}"
+    # Возвращаем путь, где будет сохранен файл
+    return os.path.join('logos', filename)
+
+def validate_logo_file(value):
+    # Проверяем MIME-тип
+    valid_mime_types = ['image/jpeg', 'image/png', 'image/svg+xml']
+    mime_type, _ = mimetypes.guess_type(value.name)
+    if mime_type not in valid_mime_types:
+        raise ValidationError(f"Неподдерживаемый тип файла. Допустимы только изображения.")
+
+def validate_logo_size(value):
+    # Устанавливаем максимальный размер файла в байтах
+    max_size_mb = 2
+    max_size = max_size_mb * 1024 * 1024
+    if value.size > max_size:
+        raise ValidationError(f"Размер файла превышает {max_size_mb} МБ. Загрузите файл меньшего размера.")
+
+
+class Sphere(models.Model):
+    name = models.CharField(max_length=40, unique=True, verbose_name='Название сферы')
+    description = models.TextField(blank=True, null=True, verbose_name='Описание сферы')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Сфера'
+        verbose_name_plural = 'Сферы'
 
 class Product(models.Model):
     STATUS_CHOICES = [
-        ('idea', 'идея'), # продукт находится в стадии планирования, но работа ещё не началась
-        ('recruitment ongoing', 'идет набор'), # продукт активно разрабатывается, но ещё не готов к использованию
-        ('MVP development', 'разработка MVP'), # продукт завершён, но проходит стадию тестирования (например, бета-тест)
-        ('MVP ready', 'MVP готов'), # продукт запущен и используется пользователями
-        ('first sales', 'Первые продажи'), # продукт больше не развивается, но поддерживается (обновления, исправление ошибок)
-        ('early growth', 'ранний доступ'), # продукт больше не используется и не поддерживается
-        ('scaling', 'масштабирование'), # разработка продукта остановлена и не будет продолжена
-        ('late growth', 'поздний доступ'), # разработка продукта остановлена и не будет продолжена
-        ('frozen', 'заморожен'), # разработка продукта остановлена и не будет продолжена
-        ('closed', 'закрыт'), # разработка продукта остановлена и не будет продолжена
+        ('idea', 'идея'),
+        ('recruitment ongoing', 'идет набор'),
+        ('MVP development', 'разработка MVP'),
+        ('MVP ready', 'MVP готов'),
+        ('first sales', 'первые продажи'),
+        ('early growth', 'ранний рост'),
+        ('scaling', 'масштабирование'),
+        ('late growth', 'поздний рост'),
+        ('frozen', 'заморожен'),
+        ('closed', 'закрыт'),
+    ]
+    SALES_CHOICES = [
+        ('B2B', 'B2B'),
+        ('B2C', 'B2C'),
+        ('B2G', 'B2G'),
+        ('C2C', 'C2C'),
+        ('B2B2C', 'B2B2C'),
     ]
     name = models.CharField(max_length=255, verbose_name='Название')
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
     created_at = models.DateField(blank=True, null=True, verbose_name='Дата запуска')
     status = models.CharField(
-        max_length=20,
+        max_length=40,
         choices=STATUS_CHOICES,
         blank=True,
         null=True,
-        verbose_name='Статус'
+        verbose_name='Статус',
+        help_text = 'Выберите текущий статус продукта. Например, "идея" или "разработка MVP".'
     )
     owners = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -36,39 +82,28 @@ class Product(models.Model):
         related_name='products_as_curator',
         verbose_name='Кураторы'
     )
-    SPHERE_CHOICES = [
-        ('process automation', 'автоматизация процессов'), #
-        ('online marketing', 'онлайн-маркетинг'), #
-        ('travel', 'путешествия'), #
-        ('entertainment', 'развлечения'), #
-        ('tools', 'инструменты'), #
-    ]
-    sphere = models.CharField(
-        max_length=20,
-        choices=SPHERE_CHOICES,
+    spheres = models.ManyToManyField(
+        Sphere,
+        related_name='products',
         blank=True,
-        null=True,
-        verbose_name='Сфера'    
+        verbose_name='Сферы',
+        help_text='Выберите одну или несколько сфер, к которым относится продукт.'
     )
-    SALES_CHOICES = [
-        ('B2B','B2B'), # business to business
-        ('B2C', 'B2C'), # business to consumer
-        ('B2G', 'B2G'), # business to government
-        ('C2C', 'C2C'), # consumer to consumer
-        ('B2B2C', 'B2B2C'), # business to business to consumer
-    ]
     sales_model = models.CharField(
-        max_length=20,
+        max_length=40,
         choices=SALES_CHOICES,
         blank=True,
         null=True,
-        verbose_name='Модель продаж'    
+        verbose_name='Модель продаж',
+        help_text='Выберите модель продаж продукта, например, B2B или C2C.'
     )
     logo = models.FileField(
-        upload_to='upload_logo',
+        upload_to=upload_to,
+        validators=[validate_logo_file, validate_logo_size],
         blank=True,
         null=True,
-        verbose_name='Логотип'
+        verbose_name='Логотип',
+        help_text = 'Загрузите изображение в формате JPEG или PNG размером не более 2 МБ'
     )
 
     def get_projects(self):
@@ -85,14 +120,14 @@ class Product(models.Model):
 
 class Project(models.Model):
     STATUS_CHOICES = [
-        ('draft', 'Черновик'), # проект ещё не утверждён, находится в стадии разработки концепции
-        ('planned', 'Запланирован'), # проект утверждён, но ещё не начат
-        ('in_progress', 'В процессе'), # проект находится в активной разработке
-        ('on_hold', 'Приостановлен'), # работа временно остановлена (например, из-за нехватки ресурсов)
-        ('under_review', 'На проверке'), # проект завершён, но проходит проверку или оценку
-        ('completed', 'Завершён'), # проект успешно выполнен и завершён
-        ('cancelled', 'Отменён'), # проект закрыт без завершения
-        ('archived', 'Архивирован'), # проект завершён или отменён, больше не активен
+        ('draft', 'Черновик'),
+        ('planned', 'Запланирован'),
+        ('in_progress', 'В процессе'),
+        ('on_hold', 'Приостановлен'),
+        ('under_review', 'На проверке'),
+        ('completed', 'Завершён'),
+        ('cancelled', 'Отменён'),
+        ('archived', 'Архивирован'),
     ]
     name = models.CharField(max_length=255, verbose_name='Название')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='projects', verbose_name='Продукт')

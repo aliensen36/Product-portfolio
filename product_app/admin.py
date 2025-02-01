@@ -1,9 +1,8 @@
 from django.contrib import admin
-from .models import Product, Project
+from .models import *
 from django.utils.html import format_html
 
 class ProductAdmin(admin.ModelAdmin):
-    # fields = ('name', 'description', 'created_at', 'status', 'owners', 'curators', 'sphere', 'sales_model', 'logo')
     list_display = ('name', 'created_at')
     search_fields = ('name',)
     list_filter = ('created_at',)
@@ -31,5 +30,10 @@ class ProjectAdmin(admin.ModelAdmin):
     list_filter = ('start_date', 'end_date', 'product')
     filter_horizontal = ('curators', 'members')
 
+class SphereAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Project, ProjectAdmin)
+admin.site.register(Sphere, SphereAdmin)
