@@ -4,9 +4,9 @@ from django.utils.html import format_html
 
 
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('display_logo', 'name', 'created_at')
+    list_display = ('display_logo', 'name', 'formatted_created_at')
     list_display_links = ('display_logo', 'name')
-    search_fields = ('name',)
+    search_fields = ('name', 'created_at')
     list_filter = ('created_at',)
     filter_horizontal = ('owners', 'curators', 'spheres')
     readonly_fields = ('get_projects', 'display_logo')
@@ -21,6 +21,14 @@ class ProductAdmin(admin.ModelAdmin):
             'fields': ('spheres',),
         }),
     )
+
+    def formatted_created_at(self, obj):
+        """Возвращает дату в формате '01.02.2025'"""
+        if obj.created_at:
+            return obj.created_at.strftime('%d.%m.%Y')
+        return 'Не указана'
+
+    formatted_created_at.short_description = 'Дата запуска'
 
     def get_projects(self, obj):
         """Возвращает список связанных проектов с ссылками на редактирование"""
