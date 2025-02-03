@@ -50,3 +50,23 @@ class ProjectSerializer(serializers.ModelSerializer):
             'curators',
             'members',
         )
+
+class PartnerSerializer(serializers.ModelSerializer):
+    """
+    Сериализатор для модели Partner.
+    """
+    logo = serializers.SerializerMethodField()
+
+    def get_logo(self, obj):
+        if obj.logo:
+            return obj.logo.url  # автоматически создаст абсолютный URL
+        return None
+    
+    class Meta:
+        model = Partner
+        fields = (
+            'id',
+            'name',
+            'logo',
+            'url',
+        )

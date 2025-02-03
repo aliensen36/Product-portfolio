@@ -151,3 +151,10 @@ class ProjectViewSet(ModelViewSet):
                 return Response({'message': f'User {user.username} added as member.'})
             except User.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            
+class PartnerViewSet(ModelViewSet):
+    """
+    Вьюсет для работы с моделью Product.
+    """
+    queryset = Partner.objects.all()
+    serializer_class = PartnerSerializer
