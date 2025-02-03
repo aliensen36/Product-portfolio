@@ -167,3 +167,22 @@ class Project(models.Model):
     class Meta:
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
+
+class Partner(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Название')
+    logo = models.FileField(
+        upload_to=upload_to,
+        validators=[validate_logo_file, validate_logo_size],
+        blank=True,
+        null=True,
+        verbose_name='Логотип',
+        help_text = 'Загрузите изображение в формате JPEG или PNG размером не более 2 МБ'
+    )
+    url = models.URLField()
+        
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Партнёр'
+        verbose_name_plural = 'Партнёры'
