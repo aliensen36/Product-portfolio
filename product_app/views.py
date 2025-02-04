@@ -3,15 +3,12 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
-from .models import Product, Project
+from .models import *
 from .serializers import *
 
 User = settings.AUTH_USER_MODEL  # Получаем модель пользователя через settings.AUTH_USER_MODEL
 
 class ProductViewSet(ModelViewSet):
-    """
-    Вьюсет для работы с моделью Product.
-    """
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
 
@@ -80,9 +77,6 @@ class ProductViewSet(ModelViewSet):
 
 
 class ProjectViewSet(ModelViewSet):
-    """
-    Вьюсет для работы с моделью Project.
-    """
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
@@ -153,8 +147,11 @@ class ProjectViewSet(ModelViewSet):
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
             
 class PartnerViewSet(ModelViewSet):
-    """
-    Вьюсет для работы с моделью Product.
-    """
     queryset = Partner.objects.all()
     serializer_class = PartnerSerializer
+
+
+class SphereViewSet(ModelViewSet):
+    queryset = Sphere.objects.all()
+    serializer_class = SphereSerializer
+

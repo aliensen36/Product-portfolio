@@ -46,6 +46,27 @@ class Sphere(models.Model):
         verbose_name = 'Сфера'
         verbose_name_plural = 'Сферы'
 
+
+class Partner(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Название')
+    logo = models.FileField(
+        upload_to=upload_to,
+        validators=[validate_logo_file, validate_logo_size],
+        blank=True,
+        null=True,
+        verbose_name='Логотип',
+        help_text='Загрузите изображение в формате JPEG или PNG размером не более 2 МБ'
+    )
+    url = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Партнёр'
+        verbose_name_plural = 'Партнёры'
+
+
 class Product(models.Model):
     STATUS_CHOICES = [
         ('idea', 'идея'),
@@ -89,12 +110,19 @@ class Product(models.Model):
         related_name='products_as_curator',
         verbose_name='Кураторы'
     )
+    partners = models.ManyToManyField(
+        Partner,
+        related_name='products_as_partner',
+        blank=True,
+        verbose_name='Партнеры',
+        help_text='Добавьте партнера(ов) Продукта.'
+    )
     spheres = models.ManyToManyField(
         Sphere,
-        related_name='products',
+        related_name='products_as_sphere',
         blank=True,
         verbose_name='Сферы',
-        help_text='Выберите одну или несколько сфер, к которым относится продукт.'
+        help_text='Добавьте сферу(ы), к которой(ым) относится Продукт.'
     )
     sales_model = models.CharField(
         max_length=40,
@@ -102,7 +130,7 @@ class Product(models.Model):
         blank=True,
         null=True,
         verbose_name='Модель продаж',
-        help_text='Выберите модель продаж продукта, например, B2B или C2C.'
+        help_text='Добавьте модель продаж, например, B2B или C2C.'
     )
     logo = models.FileField(
         upload_to=upload_to,
@@ -129,8 +157,9 @@ class Project(models.Model):
     STATUS_CHOICES = [
         ('draft', 'Черновик'),
         ('planned', 'Запланирован'),
-        ('in_progress', 'В процессе'),
-        ('on_hold', 'Приостановлен'),
+        ('recruitment_is_underway', 'Идет набор'),
+        ('in_development', 'В разработке'),
+        ('frozen', 'Заморожен'),
         ('under_review', 'На проверке'),
         ('completed', 'Завершён'),
         ('cancelled', 'Отменён'),
@@ -142,7 +171,7 @@ class Project(models.Model):
     start_date = models.DateField(verbose_name='Дата начала')
     end_date = models.DateField(blank=True, null=True, verbose_name='Дата завершения')
     status = models.CharField(
-        max_length=20,
+        max_length=40,
         choices=STATUS_CHOICES,
         blank=True,
         null=True,
@@ -160,6 +189,13 @@ class Project(models.Model):
         related_name='projects_as_member',
         verbose_name='Стажёры'
     )
+    partners = models.ManyToManyField(
+        Partner,
+        related_name='projects_as_partner',
+        blank=True,
+        verbose_name='Партнеры',
+        help_text='Добавьте партнера(ов) Продукта.'
+    )
 
     def __str__(self):
         return self.name
@@ -168,21 +204,3 @@ class Project(models.Model):
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
 
-class Partner(models.Model):
-    name = models.CharField(max_length=255, verbose_name='Название')
-    logo = models.FileField(
-        upload_to=upload_to,
-        validators=[validate_logo_file, validate_logo_size],
-        blank=True,
-        null=True,
-        verbose_name='Логотип',
-        help_text = 'Загрузите изображение в формате JPEG или PNG размером не более 2 МБ'
-    )
-    url = models.URLField()
-        
-    def __str__(self):
-        return self.name
-
-    class Meta:
-        verbose_name = 'Партнёр'
-        verbose_name_plural = 'Партнёры'

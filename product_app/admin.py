@@ -8,14 +8,14 @@ class ProductAdmin(admin.ModelAdmin):
     list_display_links = ('display_logo', 'name')
     search_fields = ('name', 'created_at')
     list_filter = ('created_at',)
-    filter_horizontal = ('owners', 'curators', 'spheres')
+    filter_horizontal = ('owners', 'curators', 'partners', 'spheres')
     readonly_fields = ('get_projects', 'display_logo')
     fieldsets = (
         ('Основные сведения', {
             'fields': ('name', 'display_logo', 'logo', 'description', 'created_at', 'status', 'sales_model')
         }),
-        ('Заказчики и кураторы', {
-            'fields': ('owners', 'curators'),
+        ('Заказчики, кураторы и партнеры', {
+            'fields': ('owners', 'curators', 'partners'),
         }),
         ('Сферы', {
             'fields': ('spheres',),
@@ -50,6 +50,7 @@ class ProductAdmin(admin.ModelAdmin):
         if obj.logo and obj.logo.url:
             return format_html('<img src="{}" style="width: 100px; height: 60px;" alt="Логотип">', obj.logo.url)
         return "Логотип отсутствует"
+
     display_logo.short_description = 'Логотип'
 
 
@@ -57,36 +58,40 @@ class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'product', 'start_date', 'end_date')
     search_fields = ('name',)
     list_filter = ('start_date', 'end_date', 'product')
-    filter_horizontal = ('curators', 'members')
+    filter_horizontal = ('curators', 'members', 'partners')
+    fieldsets = (
+        ('Основные сведения', {
+            'fields': ('name', 'product', 'description', 'status', 'start_date', 'end_date')
+        }),
+        ('Кураторы, участники и партнеры', {
+            'fields': ('curators', 'members', 'partners'),
+        }),
+    )
+
 
 class SphereAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
 class PartnerAdmin(admin.ModelAdmin):
-    list_display = ('name', 'logo', 'display_logo', 'url', 'formatted_created_at')
+    list_display = ('display_logo', 'name')
     list_display_links = ('display_logo', 'name')
     search_fields = ('name',)
-    readonly_fields = ('url', 'display_logo')
+    readonly_fields = ('display_logo',)
     fieldsets = (
         ('Основные сведения', {
-            'fields': ('name', 'display_logo', 'logo',)
+            'fields': ('name', 'display_logo', 'logo', 'url')
         }),
     )
-
-    def formatted_created_at(self, obj):
-        """Возвращает дату в формате '01.02.2025'"""
-        if obj.created_at:
-            return obj.created_at.strftime('%d.%m.%Y')
-        return 'Не указана'
-
-    formatted_created_at.short_description = 'Дата запуска'
 
     def display_logo(self, obj):
         """Отображает логотип в админке"""
         if obj.logo and obj.logo.url:
             return format_html('<img src="{}" style="width: 100px; height: 60px;" alt="Логотип">', obj.logo.url)
         return "Логотип отсутствует"
+
     display_logo.short_description = 'Логотип'
+
+
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Project, ProjectAdmin)
