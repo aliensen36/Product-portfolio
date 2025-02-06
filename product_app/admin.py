@@ -57,11 +57,14 @@ class ProductAdmin(admin.ModelAdmin):
 class ProjectStageInline(admin.TabularInline):
     model = ProjectStage
     extra = 0
+
+
 class ProjectRoleInline(admin.TabularInline):
     model = ProjectRole
     extra = 0
     verbose_name = 'Роль участника'
     verbose_name_plural = 'Роли участников'
+
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('display_logo', 'name', 'product')
@@ -100,7 +103,7 @@ class ProjectAdmin(admin.ModelAdmin):
         stages = obj.stages.all()
         # Форматируем вывод: дата начала и окончания этапа, если end_date существует
         return format_html('<br>'.join([
-            f'{stage.start_date.strftime("%d.%m.%Y")} - {stage.end_date.strftime("%d.%m.%Y") if stage.end_date else ""}    –    {stage.name}'
+            f'{stage.start_date.strftime("%d.%m.%Y")}   –   {stage.name}'
             for stage in stages
         ]))
 
@@ -115,7 +118,6 @@ class ProjectAdmin(admin.ModelAdmin):
         ]))
 
     members_and_roles_list.short_description = 'Роли участников'
-
 
 
 class SphereAdmin(admin.ModelAdmin):
@@ -155,7 +157,10 @@ class SalesModelAdmin(admin.ModelAdmin):
 
 
 class ProjectStageAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'project')
+    list_display_links = ('name', 'project')
+    search_fields = ('name', 'product')
+    list_filter = ('project',)
 
 
 class RoleAdmin(admin.ModelAdmin):

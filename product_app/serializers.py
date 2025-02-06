@@ -54,7 +54,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 class ProductStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductStatus
-        fields = ['id', 'name', 'description', 'is_active']
+        fields = ['id', 'name', 'description']
 
 
 class ProjectStageSerializer(serializers.ModelSerializer):
@@ -74,7 +74,7 @@ class SalesModelSerializer(serializers.ModelSerializer):
 class ProjectStatusSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProjectStatus
-        fields = ['id', 'name', 'description', 'is_active']
+        fields = ['id', 'name', 'description']
         read_only_fields = ['id']
 
 
