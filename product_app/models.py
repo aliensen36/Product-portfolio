@@ -67,36 +67,40 @@ class Partner(models.Model):
         verbose_name_plural = 'Партнёры'
 
 
+class ProductStatus(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="Название")
+    description = models.TextField(blank=True, null=True, verbose_name="Описание")
+
+    class Meta:
+        verbose_name = "Статус продукта"
+        verbose_name_plural = "Статусы продуктов"
+
+    def __str__(self):
+        return self.name
+
+
+class SalesModel(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="Название")
+    description = models.TextField(blank=True, null=True, verbose_name="Описание")
+
+    class Meta:
+        verbose_name = 'Модель продаж'
+        verbose_name_plural = 'Модели продаж'
+
+    def __str__(self):
+        return self.name
+
+
 class Product(models.Model):
-    STATUS_CHOICES = [
-        ('idea', 'идея'),
-        ('recruitment ongoing', 'идет набор'),
-        ('MVP development', 'разработка MVP'),
-        ('MVP ready', 'MVP готов'),
-        ('first sales', 'первые продажи'),
-        ('early growth', 'ранний рост'),
-        ('scaling', 'масштабирование'),
-        ('late growth', 'поздний рост'),
-        ('frozen', 'заморожен'),
-        ('closed', 'закрыт'),
-    ]
-    SALES_CHOICES = [
-        ('B2B', 'B2B'),
-        ('B2C', 'B2C'),
-        ('B2G', 'B2G'),
-        ('C2C', 'C2C'),
-        ('B2B2C', 'B2B2C'),
-    ]
     name = models.CharField(max_length=255, verbose_name='Название')
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
     created_at = models.DateField(blank=True, null=True, verbose_name='Дата запуска')
-    status = models.CharField(
-        max_length=40,
-        choices=STATUS_CHOICES,
-        blank=True,
+    status = models.ForeignKey(
+        ProductStatus,
+        on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Статус',
-        help_text = 'Выберите текущий статус продукта. Например, "идея" или "разработка MVP".'
+        blank=True,
+        verbose_name="Статус"
     )
     owners = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -124,13 +128,13 @@ class Product(models.Model):
         verbose_name='Сферы',
         help_text='Добавьте сферу(ы), к которой(ым) относится Продукт.'
     )
-    sales_model = models.CharField(
-        max_length=40,
-        choices=SALES_CHOICES,
-        blank=True,
+    sales_model = models.ForeignKey(
+        SalesModel,
+        on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         verbose_name='Модель продаж',
-        help_text='Добавьте модель продаж, например, B2B или C2C.'
+        help_text='Выберите модель продаж, например, B2B или C2C.'
     )
     logo = models.FileField(
         upload_to=upload_to,
@@ -153,29 +157,71 @@ class Product(models.Model):
         verbose_name_plural = 'Продукты'
 
 
+class ProjectStatus(models.Model):
+    name = models.CharField(max_length=100, unique=True, verbose_name="Название")
+    description = models.TextField(blank=True, null=True, verbose_name="Описание")
+
+    class Meta:
+        verbose_name = "Статус проекта"
+        verbose_name_plural = "Статусы проектов"
+
+    def __str__(self):
+        return self.name
+
+
+class Role(models.Model):
+    name = models.CharField(max_length=100, verbose_name='Название')
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Роль'
+        verbose_name_plural = 'Роли'
+
+
+class ProjectRole(models.Model):
+    member = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='project_roles',
+        verbose_name='Участник'
+    )
+    role = models.ForeignKey(
+        Role,
+        on_delete=models.CASCADE,
+        related_name='project_roles',
+        verbose_name='Роль'
+    )
+    project = models.ForeignKey(
+        'Project',
+        on_delete=models.CASCADE,
+        related_name='project_roles',
+        verbose_name='Проект'
+    )
+
+    class Meta:
+        verbose_name = 'Роль участника в проекте'
+        verbose_name_plural = 'Роли участников в проекте'
+        unique_together = ('member', 'project')  # Уникальная пара участник-проект
+
+    def __str__(self):
+        return f"{self.member} – {self.role.name}"
+
+
 class Project(models.Model):
-    STATUS_CHOICES = [
-        ('draft', 'Черновик'),
-        ('planned', 'Запланирован'),
-        ('recruitment_is_underway', 'Идет набор'),
-        ('in_development', 'В разработке'),
-        ('frozen', 'Заморожен'),
-        ('under_review', 'На проверке'),
-        ('completed', 'Завершён'),
-        ('cancelled', 'Отменён'),
-        ('archived', 'Архивирован'),
-    ]
     name = models.CharField(max_length=255, verbose_name='Название')
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='projects', verbose_name='Продукт')
     description = models.TextField(blank=True, null=True, verbose_name='Описание')
-    start_date = models.DateField(verbose_name='Дата начала')
+    principles = models.TextField(blank=True, null=True, verbose_name='Принципы работы')
+    start_date = models.DateField(blank=True, null=True, verbose_name='Дата запуска')
     end_date = models.DateField(blank=True, null=True, verbose_name='Дата завершения')
-    status = models.CharField(
-        max_length=40,
-        choices=STATUS_CHOICES,
-        blank=True,
+    status = models.ForeignKey(
+        ProjectStatus,
+        on_delete=models.SET_NULL,
         null=True,
-        verbose_name='Статус'
+        blank=True,
+        verbose_name="Статус"
     )
     curators = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
@@ -196,6 +242,14 @@ class Project(models.Model):
         verbose_name='Партнеры',
         help_text='Добавьте партнера(ов) Продукта.'
     )
+    logo = models.FileField(
+        upload_to=upload_to,
+        validators=[validate_logo_file, validate_logo_size],
+        blank=True,
+        null=True,
+        verbose_name='Логотип',
+        help_text='Загрузите изображение в формате JPEG или PNG размером не более 2 МБ'
+    )
 
     def __str__(self):
         return self.name
@@ -203,4 +257,24 @@ class Project(models.Model):
     class Meta:
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
+
+
+class ProjectStage(models.Model):
+    project = models.ForeignKey(
+        Project,
+        on_delete=models.CASCADE,
+        related_name='stages',
+        verbose_name='Проект'
+    )
+    name = models.CharField(max_length=255, verbose_name='Название этапа')
+    start_date = models.DateField(verbose_name='Дата начала этапа', blank=True, null=True)
+    end_date = models.DateField(verbose_name='Дата окончания этапа', blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.name} ({self.project.name})'
+
+    class Meta:
+        verbose_name = 'Этап проекта'
+        verbose_name_plural = 'Этапы проектов'
+
 

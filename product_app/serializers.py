@@ -49,3 +49,48 @@ class ProjectSerializer(serializers.ModelSerializer):
             'id', 'name', 'product', 'description', 'start_date', 'end_date',
             'status', 'curators', 'members', 'partners'
         ]
+
+
+class ProductStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductStatus
+        fields = ['id', 'name', 'description', 'is_active']
+
+
+class ProjectStageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectStage
+        fields = ['id', 'project', 'name', 'start_date', 'end_date']
+        read_only_fields = ['id']  # Поле `id` будет доступно только для чтения
+
+
+class SalesModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SalesModel
+        fields = ['id', 'name', 'description']  # Поля, которые будут сериализованы
+        read_only_fields = ['id']  # Поле id доступно только для чтения
+
+
+class ProjectStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProjectStatus
+        fields = ['id', 'name', 'description', 'is_active']
+        read_only_fields = ['id']
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = ['id', 'name']
+
+
+class ProjectRoleSerializer(serializers.ModelSerializer):
+    member_name = serializers.CharField(source='member.get_full_name', read_only=True)
+    role_name = serializers.CharField(source='role.name', read_only=True)
+    project_name = serializers.CharField(source='project.name', read_only=True)
+
+    class Meta:
+        model = ProjectRole
+        fields = ['id', 'member', 'member_name', 'role', 'role_name', 'project', 'project_name']
+
+

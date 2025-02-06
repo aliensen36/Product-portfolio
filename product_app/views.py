@@ -8,6 +8,7 @@ from .serializers import *
 
 User = settings.AUTH_USER_MODEL  # Получаем модель пользователя через settings.AUTH_USER_MODEL
 
+
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
@@ -145,7 +146,8 @@ class ProjectViewSet(ModelViewSet):
                 return Response({'message': f'User {user.username} added as member.'})
             except User.DoesNotExist:
                 return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
-            
+
+
 class PartnerViewSet(ModelViewSet):
     queryset = Partner.objects.all()
     serializer_class = PartnerSerializer
@@ -155,3 +157,47 @@ class SphereViewSet(ModelViewSet):
     queryset = Sphere.objects.all()
     serializer_class = SphereSerializer
 
+
+class ProductStatusViewSet(ModelViewSet):
+    queryset = ProductStatus.objects.all()
+    serializer_class = ProductStatusSerializer
+
+
+class ProjectStageViewSet(ModelViewSet):
+    queryset = ProjectStage.objects.all()
+    serializer_class = ProjectStageSerializer
+
+    # Фильтрация по проекту через query params (например, `?project=1`)
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        project_id = self.request.query_params.get('project')
+        if project_id:
+            queryset = queryset.filter(project_id=project_id)
+        return queryset
+
+
+class SalesModelViewSet(ModelViewSet):
+    queryset = SalesModel.objects.all()  # Все объекты модели SalesModel
+    serializer_class = SalesModelSerializer
+
+
+class ProjectStatusViewSet(ModelViewSet):
+    queryset = ProjectStatus.objects.all()  # Все объекты модели ProjectStatus
+    serializer_class = ProjectStatusSerializer
+
+
+class RoleViewSet(ModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+
+
+class ProjectRoleViewSet(ModelViewSet):
+    queryset = ProjectRole.objects.select_related('member', 'role', 'project').all()
+    serializer_class = ProjectRoleSerializer
+
+    def get_queryset(self):
+        # Можно фильтровать данные по параметрам, например, проекту
+        project_id = self.request.query_params.get('project_id')
+        if project_id:
+            return self.queryset.filter(project_id=project_id)
+        return self.queryset

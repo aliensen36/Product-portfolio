@@ -54,23 +54,77 @@ class ProductAdmin(admin.ModelAdmin):
     display_logo.short_description = 'Логотип'
 
 
+class ProjectStageInline(admin.TabularInline):
+    model = ProjectStage
+    extra = 0
+class ProjectRoleInline(admin.TabularInline):
+    model = ProjectRole
+    extra = 0
+    verbose_name = 'Роль участника'
+    verbose_name_plural = 'Роли участников'
+
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'product', 'start_date', 'end_date')
-    search_fields = ('name',)
+    list_display = ('display_logo', 'name', 'product')
+    list_display_links = ('display_logo', 'name', 'product')
+    search_fields = ('name', 'product')
     list_filter = ('start_date', 'end_date', 'product')
     filter_horizontal = ('curators', 'members', 'partners')
+    readonly_fields = ('stages_list', 'display_logo', 'members_and_roles_list')
+    inlines = [ProjectStageInline, ProjectRoleInline]
+
     fieldsets = (
         ('Основные сведения', {
-            'fields': ('name', 'product', 'description', 'status', 'start_date', 'end_date')
+            'fields': ('name', 'display_logo', 'logo', 'product', 'description', 'principles', 'status', 'start_date', 'end_date')
+        }),
+        ('Этапы проекта', {
+            'fields': ('stages_list',),
         }),
         ('Кураторы, участники и партнеры', {
             'fields': ('curators', 'members', 'partners'),
         }),
+        ('Роли участников', {
+            'fields': ('members_and_roles_list',)
+        }),
     )
+
+    def display_logo(self, obj):
+        """Отображает логотип в админке"""
+        if obj.logo and obj.logo.url:
+            return format_html('<img src="{}" style="width: 100px; height: 60px;" alt="Логотип">', obj.logo.url)
+        return "Логотип отсутствует"
+
+    display_logo.short_description = 'Логотип'
+
+    def stages_list(self, obj):
+        # Получаем связанные этапы для проекта
+        stages = obj.stages.all()
+        # Форматируем вывод: дата начала и окончания этапа, если end_date существует
+        return format_html('<br>'.join([
+            f'{stage.start_date.strftime("%d.%m.%Y")} - {stage.end_date.strftime("%d.%m.%Y") if stage.end_date else ""}    –    {stage.name}'
+            for stage in stages
+        ]))
+
+    stages_list.short_description = 'Этапы'
+
+    def members_and_roles_list(self, obj):
+        # Получаем связанные роли участников для проекта
+        project_roles = obj.project_roles.select_related('member', 'role')
+        # Форматируем вывод в виде: "Иван Иванов – Бекендер"
+        return format_html('<br>'.join([
+            f'{role.member} – {role.role.name}' for role in project_roles
+        ]))
+
+    members_and_roles_list.short_description = 'Роли участников'
+
 
 
 class SphereAdmin(admin.ModelAdmin):
     list_display = ('name',)
+
+
+class ProductStatusAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
 
 class PartnerAdmin(admin.ModelAdmin):
     list_display = ('display_logo', 'name')
@@ -92,8 +146,38 @@ class PartnerAdmin(admin.ModelAdmin):
     display_logo.short_description = 'Логотип'
 
 
+class ProjectStatusAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+
+class SalesModelAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+
+class ProjectStageAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+
+
+class RoleAdmin(admin.ModelAdmin):
+    list_display = ('name',)
+    search_fields = ('name',)
+
+
+class ProjectRoleAdmin(admin.ModelAdmin):
+    list_display = ('member', 'role', 'project')
+    search_fields = ('member__username', 'role__name', 'project__name')
+    list_filter = ('role', 'project')
+    autocomplete_fields = ('member', 'role', 'project')
+
 
 admin.site.register(Product, ProductAdmin)
 admin.site.register(Project, ProjectAdmin)
 admin.site.register(Sphere, SphereAdmin)
 admin.site.register(Partner, PartnerAdmin)
+admin.site.register(ProductStatus, ProductStatusAdmin)
+admin.site.register(ProjectStatus, ProjectStatusAdmin)
+admin.site.register(SalesModel, SalesModelAdmin)
+admin.site.register(ProjectStage, ProjectStageAdmin)
+admin.site.register(Role, RoleAdmin)
+admin.site.register(ProjectRole, ProjectRoleAdmin)
+
