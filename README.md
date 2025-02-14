@@ -1,6 +1,6 @@
 # Product & Project Management Service
 
-Этот проект предоставляет REST API для управления продуктами и проектами, связанными с ними. Это часть личного кабинета Кловери.  
+Этот проект предоставляет REST API для управления продуктами и проектами, связанными с ними.  
 
 ## 📋 Функциональность
 
@@ -14,19 +14,14 @@
 
 ### Шаг 1: Клонируйте репозиторий
 ```bash
-
-# Clone with SSH
-git clone git@git.cloveri.com:cloveri.start/start/product-portfolio.git
-
 # Clone with HTTPS
-git clone https://git.infra.cloveri.com/cloveri.start/start/product-portfolio.git
+git clone https://github.com/aliensen36/Product-portfolio.git
 ```
 
 ### Шаг 2: Создайте виртуальное окружение
 ```bash
 python -m venv venv
-source venv/bin/activate  # Для Linux/MacOS
-venv\Scripts\activate     # Для Windows
+venv\Scripts\activate
 ```
 
 ### Шаг 3: Установите зависимости
