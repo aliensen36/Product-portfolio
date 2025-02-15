@@ -145,5 +145,5 @@ SPECTACULAR_SETTINGS = {
 }
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://b094-185-200-105-89.ngrok-free.app'
+    'https://d63a-185-200-105-89.ngrok-free.app'
 ]
